@@ -15,11 +15,18 @@ import 'ember-data';
 
   For example, imagine an Ember.js application with the following classes:
 
-  App.StoreService = DS.Store.extend({
+  ```app/services/store.js
+  import DS from 'ember-data';
+
+  export default DS.Store.extend({
     adapter: 'custom'
   });
+  ```
 
-  App.PostsController = Ember.Controller.extend({
+  ```app/controllers/posts.js
+  import Controller from '@ember/routing/route';
+
+  export default Controller.extend({
     // ...
   });
 

@@ -37,10 +37,11 @@ const { camelize } = Ember.String;
 
   ```app/serializers/application.js
   import DS from 'ember-data';
+  import { underscore } from '@ember/string';
 
   export default DS.RESTSerializer.extend({
     keyForAttribute(attr, method) {
-      return Ember.String.underscore(attr).toUpperCase();
+      return underscore(attr).toUpperCase();
     }
   });
   ```
@@ -668,10 +669,11 @@ const RESTSerializer = JSONSerializer.extend({
 
     ```app/serializers/application.js
     import DS from 'ember-data';
+    import { decamelize } from '@ember/string';
 
     export default DS.RESTSerializer.extend({
       serializeIntoHash(data, type, record, options) {
-        var root = Ember.String.decamelize(type.modelName);
+        var root = decamelize(type.modelName);
         data[root] = this.serialize(record, options);
       }
     });
@@ -709,10 +711,11 @@ const RESTSerializer = JSONSerializer.extend({
 
     ```app/serializers/application.js
     import DS from 'ember-data';
+    import { dasherize } from '@ember/string';
 
     export default DS.RESTSerializer.extend({
       payloadKeyFromModelName(modelName) {
-        return Ember.String.dasherize(modelName);
+        return dasherize(modelName);
       }
     });
     ```

@@ -75,8 +75,12 @@ export default Ember.Object.extend({
     Example
 
     ```javascript
+    import { isEmpty } from '@ember/utils';
+
+    …
+
     serialize(deserialized, options) {
-      return Ember.isEmpty(deserialized) ? null : Number(deserialized);
+      return isEmpty(deserialized) ? null : Number(deserialized);
     }
     ```
 

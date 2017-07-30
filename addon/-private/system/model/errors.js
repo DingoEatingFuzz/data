@@ -289,16 +289,17 @@ export default Ember.ArrayProxy.extend(Ember.Evented, {
     ```
 
     ```app/routes/user/edit.js
-    import Ember from 'ember';
+    import Route from '@ember/routing/route';
 
-    export default Ember.Route.extend({
+    export default Route.extend({
       actions: {
-        save: function(user) {
-           if (!user.get('twoFactorAuth')) {
-             user.get('errors').remove('phone');
-           }
-           user.save();
-         }
+        save(user) {
+          if (!user.get('twoFactorAuth')) {
+            user.get('errors').remove('phone');
+          }
+          
+          user.save();
+        }
       }
     });
     ```
@@ -344,14 +345,14 @@ export default Ember.ArrayProxy.extend(Ember.Evented, {
     Example:
 
     ```app/routes/user/edit.js
-    import Ember from 'ember';
+    import Route from '@ember/routing/route';
 
-    export default Ember.Route.extend({
+    export default Route.extend({
       actions: {
-        retrySave: function(user) {
-           user.get('errors').clear();
-           user.save();
-         }
+        retrySave(user) {
+          user.get('errors').clear();
+          user.save();
+        }
       }
     });
     ```
@@ -401,16 +402,17 @@ export default Ember.ArrayProxy.extend(Ember.Evented, {
     Checks if there is error messages for the given attribute.
 
     ```app/routes/user/edit.js
-    import Ember from 'ember';
+    import Route from '@ember/routing/route';
 
-    export default Ember.Route.extend({
+    export default Route.extend({
       actions: {
-        save: function(user) {
-           if (user.get('errors').has('email')) {
-             return alert('Please update your email before attempting to save.');
-           }
-           user.save();
-         }
+        save(user) {
+          if (user.get('errors').has('email')) {
+            return alert('Please update your email before attempting to save.');
+          }
+          
+          user.save();
+        }
       }
     });
     ```

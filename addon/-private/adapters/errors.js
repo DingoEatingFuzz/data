@@ -56,10 +56,10 @@ const PRIMARY_ATTRIBUTE_KEY = 'base';
   `under-maintenance` route:
 
   ```app/routes/application.js
-  import Ember from 'ember';
+  import Route from '@ember/routing/route';
   import MaintenanceError from '../adapters/maintenance-error';
 
-  export default Ember.Route.extend({
+  export default Route.extend({
     actions: {
       error(error, transition) {
         if (error instanceof MaintenanceError) {
@@ -148,13 +148,13 @@ if (extendedErrorsEnabled) {
   rejects with a `DS.InvalidError` object that looks like this:
 
   ```app/adapters/post.js
-  import Ember from 'ember';
+  import RSVP from 'rsvp';
   import DS from 'ember-data';
 
   export default DS.RESTAdapter.extend({
     updateRecord() {
       // Fictional adapter that always rejects
-      return Ember.RSVP.reject(new DS.InvalidError([
+      return RSVP.reject(new DS.InvalidError([
         {
           detail: 'Must be unique',
           source: { pointer: '/data/attributes/title' }
@@ -189,12 +189,12 @@ export const InvalidError = extend(AdapterError,
   connection if an adapter operation has timed out:
 
   ```app/routes/application.js
-  import Ember from 'ember';
+  import Route from '@ember/routing/route';
   import DS from 'ember-data';
 
   const { TimeoutError } = DS;
 
-  export default Ember.Route.extend({
+  export default Route.extend({
     actions: {
       error(error, transition) {
         if (error instanceof TimeoutError) {
@@ -237,12 +237,12 @@ export const AbortError = extend(AdapterError,
   request is unauthorized:
 
   ```app/routes/application.js
-  import Ember from 'ember';
+  import Route from '@ember/routing/route';
   import DS from 'ember-data';
 
   const { UnauthorizedError } = DS;
 
-  export default Ember.Route.extend({
+  export default Route.extend({
     actions: {
       error(error, transition) {
         if (error instanceof UnauthorizedError) {
@@ -285,12 +285,12 @@ export const ForbiddenError = extendedErrorsEnabled ?
   for a specific model that does not exist. For example:
 
   ```app/routes/post.js
-  import Ember from 'ember';
+  import Route from '@ember/routing/route';
   import DS from 'ember-data';
 
   const { NotFoundError } = DS;
 
-  export default Ember.Route.extend({
+  export default Route.extend({
     model(params) {
       return this.get('store').findRecord('post', params.post_id);
     },

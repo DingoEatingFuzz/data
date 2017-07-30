@@ -544,17 +544,17 @@ const Model = Ember.Object.extend(Ember.Evented, {
     Example
 
     ```app/routes/model/delete.js
-    import Ember from 'ember';
+    import Route from '@ember/routing/route';
 
-    export default Ember.Route.extend({
+    export default Route.extend({
       actions: {
-        softDelete: function() {
+        softDelete() {
           this.controller.get('model').deleteRecord();
         },
-        confirm: function() {
+        confirm() {
           this.controller.get('model').save();
         },
-        undo: function() {
+        undo() {
           this.controller.get('model').rollbackAttributes();
         }
       }
@@ -577,7 +577,7 @@ const Model = Ember.Object.extend(Ember.Evented, {
 
     export default Ember.Route.extend({
       actions: {
-        delete: function() {
+        delete() {
           let controller = this.controller;
           controller.get('model').destroyRecord().then(function() {
             controller.transitionToRoute('model.index');
@@ -598,7 +598,7 @@ const Model = Ember.Object.extend(Ember.Evented, {
     import MyCustomAdapter from './custom-adapter';
 
     export default MyCustomAdapter.extend({
-      deleteRecord: function(store, type, snapshot) {
+      deleteRecord(store, type, snapshot) {
         if (snapshot.adapterOptions.subscribe) {
           // ...
         }
@@ -694,14 +694,14 @@ const Model = Ember.Object.extend(Ember.Evented, {
   /**
     @method adapterWillCommit
     @private
-  adapterWillCommit: function() {
+  adapterWillCommit() {
     this.send('willCommit');
   },
 
   /**
     @method adapterDidDirty
     @private
-  adapterDidDirty: function() {
+  adapterDidDirty() {
     this.send('becomeDirty');
     this.updateRecordArraysLater();
   },
@@ -766,7 +766,7 @@ const Model = Ember.Object.extend(Ember.Evented, {
     import MyCustomAdapter from './custom-adapter';
 
     export default MyCustomAdapter.extend({
-      updateRecord: function(store, type, snapshot) {
+      updateRecord(store, type, snapshot) {
         if (snapshot.adapterOptions.subscribe) {
           // ...
         }
@@ -798,7 +798,7 @@ const Model = Ember.Object.extend(Ember.Evented, {
 
     export default Ember.Route.extend({
       actions: {
-        reload: function() {
+        reload() {
           this.controller.get('model').reload().then(function(model) {
             // do something with the reloaded model
           });
@@ -1075,7 +1075,7 @@ const Model = Ember.Object.extend(Ember.Evented, {
    import DS from 'ember-data';
 
    export default DS.JSONSerializer.extend({
-    serialize: function(record, options) {
+    serialize(record, options) {
       let json = {};
 
       record.eachRelationship(function(name, descriptor) {
@@ -1172,10 +1172,13 @@ Model.reopenClass({
    The most common place you'll want to access `modelName` is in your serializer's `payloadKeyFromModelName` method. For example, to change payload
    keys to underscore (instead of dasherized), you might use the following code:
 
-   ```javascript
+   ```app/serializers/post.js
+   import DS from 'ember-data';
+   import { underscore } from '@ember/string';
+
    export default const PostSerializer = DS.RESTSerializer.extend({
-     payloadKeyFromModelName: function(modelName) {
-       return Ember.String.underscore(modelName);
+     payloadKeyFromModelName(modelName) {
+       return underscore(modelName);
      }
    });
    ```
@@ -1683,43 +1686,43 @@ Model.reopenClass({
   }).readOnly(),
 
   /**
-   A map whose keys are the attributes of the model (properties
-   described by DS.attr) and whose values are type of transformation
-   applied to each attribute. This map does not include any
-   attributes that do not have an transformation type.
+    A map whose keys are the attributes of the model (properties
+    described by DS.attr) and whose values are type of transformation
+    applied to each attribute. This map does not include any
+    attributes that do not have an transformation type.
 
-   Example
+    Example
 
-   ```app/models/person.js
-   import DS from 'ember-data';
+    ```app/models/person.js
+    import DS from 'ember-data';
 
-   export default DS.Model.extend({
-      firstName: DS.attr(),
-      lastName: DS.attr('string'),
-      birthday: DS.attr('date')
-    });
-   ```
+    export default DS.Model.extend({
+        firstName: DS.attr(),
+        lastName: DS.attr('string'),
+        birthday: DS.attr('date')
+      });
+    ```
 
-   ```javascript
-   import Ember from 'ember';
-   import Person from 'app/models/person';
+    ```javascript
+    import { get } from '@ember/object';
+    import Person from 'app/models/person';
 
-   let transformedAttributes = Ember.get(Person, 'transformedAttributes')
+    let transformedAttributes = get(Person, 'transformedAttributes')
 
-   transformedAttributes.forEach(function(field, type) {
-      console.log(field, type);
-    });
+    transformedAttributes.forEach(function(field, type) {
+        console.log(field, type);
+      });
 
-   // prints:
-   // lastName string
-   // birthday date
-   ```
+    // prints:
+    // lastName string
+    // birthday date
+    ```
 
-   @property transformedAttributes
-   @static
-   @type {Ember.Map}
-   @readOnly
-   */
+    @property transformedAttributes
+    @static
+    @type {Ember.Map}
+    @readOnly
+  */
   transformedAttributes: Ember.computed(function() {
     let map = Map.create();
 
@@ -1733,48 +1736,48 @@ Model.reopenClass({
   }).readOnly(),
 
   /**
-   Iterates through the attributes of the model, calling the passed function on each
-   attribute.
+    Iterates through the attributes of the model, calling the passed function on each
+    attribute.
 
-   The callback method you provide should have the following signature (all
-   parameters are optional):
+    The callback method you provide should have the following signature (all
+    parameters are optional):
 
-   ```javascript
-   function(name, meta);
-   ```
+    ```javascript
+    function(name, meta);
+    ```
 
-   - `name` the name of the current property in the iteration
-   - `meta` the meta object for the attribute property in the iteration
+    - `name` the name of the current property in the iteration
+    - `meta` the meta object for the attribute property in the iteration
 
-   Note that in addition to a callback, you can also pass an optional target
-   object that will be set as `this` on the context.
+    Note that in addition to a callback, you can also pass an optional target
+    object that will be set as `this` on the context.
 
-   Example
+    Example
 
-   ```javascript
-   import DS from 'ember-data';
+    ```javascript
+    import DS from 'ember-data';
 
-   let Person = DS.Model.extend({
+    let Person = DS.Model.extend({
       firstName: DS.attr('string'),
       lastName: DS.attr('string'),
       birthday: DS.attr('date')
     });
 
-   Person.eachAttribute(function(name, meta) {
+    Person.eachAttribute(function(name, meta) {
       console.log(name, meta);
     });
 
-   // prints:
-   // firstName {type: "string", isAttribute: true, options: Object, parentType: function, name: "firstName"}
-   // lastName {type: "string", isAttribute: true, options: Object, parentType: function, name: "lastName"}
-   // birthday {type: "date", isAttribute: true, options: Object, parentType: function, name: "birthday"}
-   ```
+    // prints:
+    // firstName {type: "string", isAttribute: true, options: Object, parentType: function, name: "firstName"}
+    // lastName {type: "string", isAttribute: true, options: Object, parentType: function, name: "lastName"}
+    // birthday {type: "date", isAttribute: true, options: Object, parentType: function, name: "birthday"}
+    ```
 
-   @method eachAttribute
-   @param {Function} callback The callback to execute
-   @param {Object} [binding] the value to which the callback's `this` should be bound
-   @static
-   */
+    @method eachAttribute
+    @param {Function} callback The callback to execute
+    @param {Object} [binding] the value to which the callback's `this` should be bound
+    @static
+  */
   eachAttribute(callback, binding) {
     get(this, 'attributes').forEach((meta, name) => {
       callback.call(binding, name, meta);
@@ -1782,49 +1785,49 @@ Model.reopenClass({
   },
 
   /**
-   Iterates through the transformedAttributes of the model, calling
-   the passed function on each attribute. Note the callback will not be
-   called for any attributes that do not have an transformation type.
+     Iterates through the transformedAttributes of the model, calling
+    the passed function on each attribute. Note the callback will not be
+    called for any attributes that do not have an transformation type.
 
-   The callback method you provide should have the following signature (all
-   parameters are optional):
+    The callback method you provide should have the following signature (all
+    parameters are optional):
 
-   ```javascript
-   function(name, type);
-   ```
+    ```javascript
+    function(name, type);
+    ```
 
-   - `name` the name of the current property in the iteration
-   - `type` a string containing the name of the type of transformed
-   applied to the attribute
+    - `name` the name of the current property in the iteration
+    - `type` a string containing the name of the type of transformed
+    applied to the attribute
 
-   Note that in addition to a callback, you can also pass an optional target
-   object that will be set as `this` on the context.
+    Note that in addition to a callback, you can also pass an optional target
+    object that will be set as `this` on the context.
 
-   Example
+    Example
 
-   ```javascript
-   import DS from 'ember-data';
+    ```javascript
+    import DS from 'ember-data';
 
-   let Person = DS.Model.extend({
-      firstName: DS.attr(),
-      lastName: DS.attr('string'),
-      birthday: DS.attr('date')
-    });
+    let Person = DS.Model.extend({
+        firstName: DS.attr(),
+        lastName: DS.attr('string'),
+        birthday: DS.attr('date')
+      });
 
-   Person.eachTransformedAttribute(function(name, type) {
-      console.log(name, type);
-    });
+    Person.eachTransformedAttribute(function(name, type) {
+        console.log(name, type);
+      });
 
-   // prints:
-   // lastName string
-   // birthday date
-   ```
+    // prints:
+    // lastName string
+    // birthday date
+    ```
 
-   @method eachTransformedAttribute
-   @param {Function} callback The callback to execute
-   @param {Object} [binding] the value to which the callback's `this` should be bound
-   @static
-   */
+    @method eachTransformedAttribute
+    @param {Function} callback The callback to execute
+    @param {Object} [binding] the value to which the callback's `this` should be bound
+    @static
+  */
   eachTransformedAttribute(callback, binding) {
     get(this, 'transformedAttributes').forEach((type, name) => {
       callback.call(binding, name, type);
@@ -1887,31 +1890,31 @@ if (DEBUG) {
     },
 
     /**
-     This Ember.js hook allows an object to be notified when a property
-     is defined.
+      This Ember.js hook allows an object to be notified when a property
+      is defined.
 
-     In this case, we use it to be notified when an Ember Data user defines a
-     belongs-to relationship. In that case, we need to set up observers for
-     each one, allowing us to track relationship changes and automatically
-     reflect changes in the inverse has-many array.
+      In this case, we use it to be notified when an Ember Data user defines a
+      belongs-to relationship. In that case, we need to set up observers for
+      each one, allowing us to track relationship changes and automatically
+      reflect changes in the inverse has-many array.
 
-     This hook passes the class being set up, as well as the key and value
-     being defined. So, for example, when the user does this:
+      This hook passes the class being set up, as well as the key and value
+      being defined. So, for example, when the user does this:
 
-     ```javascript
-     DS.Model.extend({
-      parent: DS.belongsTo('user')
-    });
-     ```
+      ```javascript
+      DS.Model.extend({
+        parent: DS.belongsTo('user')
+      });
+      ```
 
-     This hook would be called with "parent" as the key and the computed
-     property returned by `DS.belongsTo` as the value.
+      This hook would be called with "parent" as the key and the computed
+      property returned by `DS.belongsTo` as the value.
 
-     @method didDefineProperty
-     @param {Object} proto
-     @param {String} key
-     @param {Ember.ComputedProperty} value
-     */
+      @method didDefineProperty
+      @param {Object} proto
+      @param {String} key
+      @param {Ember.ComputedProperty} value
+    */
     didDefineProperty(proto, key, value) {
       // Check if the value being set is a computed property.
       if (value instanceof Ember.ComputedProperty) {

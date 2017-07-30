@@ -4,8 +4,8 @@ import Ember from 'ember';
 // require changes to other normalization hooks (such as typeForRoot).
 
 /**
- This method normalizes a modelName into the format Ember Data uses
- internally.
+  This method normalizes a modelName into the format Ember Data uses
+  internally.
 
   @method normalizeModelName
   @public

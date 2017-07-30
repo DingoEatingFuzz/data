@@ -502,13 +502,15 @@ const JSONSerializer = Serializer.extend({
 
     ```app/serializers/application.js
     import DS from 'ember-data';
+    import { get } from '@ember/object';
+    import { underscore } from '@ember/string';
 
     export default DS.JSONSerializer.extend({
       normalize(typeClass, hash) {
-        var fields = Ember.get(typeClass, 'fields');
+        var fields = get(typeClass, 'fields');
 
         fields.forEach(function(field) {
-          var payloadField = Ember.String.underscore(field);
+          var payloadField = underscore(field);
           if (field === payloadField) { return; }
 
           hash[field] = hash[payloadField];
@@ -1068,10 +1070,11 @@ const JSONSerializer = Serializer.extend({
 
     ```app/serializers/application.js
     import DS from 'ember-data';
+    import { decamelize } from '@ember/string';
 
     export default DS.RESTSerializer.extend({
       serializeIntoHash(data, type, snapshot, options) {
-        var root = Ember.String.decamelize(type.modelName);
+        var root = decamelize(type.modelName);
         data[root] = this.serialize(snapshot, options);
       }
     });
@@ -1135,30 +1138,31 @@ const JSONSerializer = Serializer.extend({
   },
 
   /**
-   `serializeBelongsTo` can be used to customize how `DS.belongsTo`
-   properties are serialized.
+    `serializeBelongsTo` can be used to customize how `DS.belongsTo`
+    properties are serialized.
 
-   Example
+    Example
 
-   ```app/serializers/post.js
-   import DS from 'ember-data';
+    ```app/serializers/post.js
+    import DS from 'ember-data';
+    import { isNone } from '@ember/utils';
 
-   export default DS.JSONSerializer.extend({
-     serializeBelongsTo(snapshot, json, relationship) {
-       var key = relationship.key;
-       var belongsTo = snapshot.belongsTo(key);
+    export default DS.JSONSerializer.extend({
+      serializeBelongsTo(snapshot, json, relationship) {
+        var key = relationship.key;
+        var belongsTo = snapshot.belongsTo(key);
 
-       key = this.keyForRelationship ? this.keyForRelationship(key, "belongsTo", "serialize") : key;
+        key = this.keyForRelationship ? this.keyForRelationship(key, "belongsTo", "serialize") : key;
 
-       json[key] = Ember.isNone(belongsTo) ? belongsTo : belongsTo.record.toJSON();
-     }
-   });
-   ```
+        json[key] = isNone(belongsTo) ? belongsTo : belongsTo.record.toJSON();
+      }
+    });
+    ```
 
-   @method serializeBelongsTo
-   @param {DS.Snapshot} snapshot
-   @param {Object} json
-   @param {Object} relationship
+    @method serializeBelongsTo
+    @param {DS.Snapshot} snapshot
+    @param {Object} json
+    @param {Object} relationship
   */
   serializeBelongsTo(snapshot, json, relationship) {
     let key = relationship.key;
@@ -1245,6 +1249,7 @@ const JSONSerializer = Serializer.extend({
 
     ```app/serializers/comment.js
     import DS from 'ember-data';
+    import { isNone } from '@ember/utils';
 
     export default DS.JSONSerializer.extend({
       serializePolymorphicType(snapshot, json, relationship) {
@@ -1253,7 +1258,7 @@ const JSONSerializer = Serializer.extend({
 
         key = this.keyForAttribute ? this.keyForAttribute(key, 'serialize') : key;
 
-        if (Ember.isNone(belongsTo)) {
+        if (isNone(belongsTo)) {
           json[key + '_type'] = null;
         } else {
           json[key + '_type'] = belongsTo.modelName;
@@ -1415,65 +1420,67 @@ const JSONSerializer = Serializer.extend({
   },
 
   /**
-   `keyForAttribute` can be used to define rules for how to convert an
-   attribute name in your model to a key in your JSON.
+    `keyForAttribute` can be used to define rules for how to convert an
+    attribute name in your model to a key in your JSON.
 
-   Example
+    Example
 
-   ```app/serializers/application.js
-   import DS from 'ember-data';
+    ```app/serializers/application.js
+    import DS from 'ember-data';
+    import { underscore } from '@ember/string';
 
-   export default DS.RESTSerializer.extend({
-     keyForAttribute(attr, method) {
-       return Ember.String.underscore(attr).toUpperCase();
-     }
-   });
-   ```
+    export default DS.RESTSerializer.extend({
+      keyForAttribute(attr, method) {
+        return underscore(attr).toUpperCase();
+      }
+    });
+    ```
 
-   @method keyForAttribute
-   @param {String} key
-   @param {String} method
-   @return {String} normalized key
+    @method keyForAttribute
+    @param {String} key
+    @param {String} method
+    @return {String} normalized key
   */
   keyForAttribute(key, method) {
     return key;
   },
 
   /**
-   `keyForRelationship` can be used to define a custom key when
-   serializing and deserializing relationship properties. By default
-   `JSONSerializer` does not provide an implementation of this method.
+    `keyForRelationship` can be used to define a custom key when
+    serializing and deserializing relationship properties. By default
+    `JSONSerializer` does not provide an implementation of this method.
 
-   Example
+    Example
 
-    ```app/serializers/post.js
-    import DS from 'ember-data';
+      ```app/serializers/post.js
+      import DS from 'ember-data';
+      import { underscore } from '@ember/string';
 
-    export default DS.JSONSerializer.extend({
-      keyForRelationship(key, relationship, method) {
-        return 'rel_' + Ember.String.underscore(key);
-      }
-    });
-    ```
+      export default DS.JSONSerializer.extend({
+        keyForRelationship(key, relationship, method) {
+          return 'rel_' + underscore(key);
+        }
+      });
+      ```
 
-   @method keyForRelationship
-   @param {String} key
-   @param {String} typeClass
-   @param {String} method
-   @return {String} normalized key
+    @method keyForRelationship
+    @param {String} key
+    @param {String} typeClass
+    @param {String} method
+    @return {String} normalized key
   */
   keyForRelationship(key, typeClass, method) {
     return key;
   },
 
   /**
-   `keyForLink` can be used to define a custom key when deserializing link
-   properties.
+    `keyForLink` can be used to define a custom key when deserializing link
+    properties.
 
-   @method keyForLink
-   @param {String} key
-   @param {String} kind `belongsTo` or `hasMany`
-   @return {String} normalized key
+    @method keyForLink
+    @param {String} key
+    @param {String} kind `belongsTo` or `hasMany`
+    @return {String} normalized key
   */
   keyForLink(key, kind) {
     return key;
@@ -1482,11 +1489,11 @@ const JSONSerializer = Serializer.extend({
   // HELPERS
 
   /**
-   @method transformFor
-   @private
-   @param {String} attributeType
-   @param {Boolean} skipAssertion
-   @return {DS.Transform} transform
+    @method transformFor
+    @private
+    @param {String} attributeType
+    @param {Boolean} skipAssertion
+    @return {DS.Transform} transform
   */
   transformFor(attributeType, skipAssertion) {
     let transform = getOwner(this).lookup('transform:' + attributeType);
@@ -1524,28 +1531,28 @@ if (isEnabled("ds-serialize-id")) {
   JSONSerializer.reopen({
 
     /**
-     serializeId can be used to customize how id is serialized
-     For example, your server may expect integer datatype of id
+      `serializeId` can be used to customize how id is serialized
+      For example, your server may expect integer datatype of id
 
-     By default the snapshot's id (String) is set on the json hash via json[primaryKey] = snapshot.id.
+      By default the snapshot's id (String) is set on the json hash via `json[primaryKey] = snapshot.id`.
 
-     ```app/serializers/application.js
-     import DS from 'ember-data';
+      ```app/serializers/application.js
+      import DS from 'ember-data';
 
-     export default DS.JSONSerializer.extend({
-     serializeId(snapshot, json, primaryKey) {
-         var id = snapshot.id;
-         json[primaryKey] = parseInt(id, 10);
-       }
-     });
-     ```
+      export default DS.JSONSerializer.extend({
+      serializeId(snapshot, json, primaryKey) {
+          var id = snapshot.id;
+          json[primaryKey] = parseInt(id, 10);
+        }
+      });
+      ```
 
-     @method serializeId
-     @public
-     @param {DS.Snapshot} snapshot
-     @param {Object} json
-     @param {String} primaryKey
-     */
+      @method serializeId
+      @public
+      @param {DS.Snapshot} snapshot
+      @param {Object} json
+      @param {String} primaryKey
+    */
     serializeId(snapshot, json, primaryKey) {
       let id = snapshot.id;
 
