@@ -1,6 +1,14 @@
+import { assign as emberAssign, merge } from '@ember/polyfills';
+import { set, get } from '@ember/object';
+import { copy } from '@ember/object/internals';
+import EmberError from '@ember/error';
+import { isEqual, isEmpty } from '@ember/utils';
+import { setOwner } from '@ember/application';
+import { run } from '@ember/runloop';
+import RSVP, { Promise } from 'rsvp';
 import Ember from 'ember';
 import { DEBUG } from '@glimmer/env';
-import { assert } from '@ember/debug';
+import { assert, inspect } from '@ember/debug';
 import RootState from "./states";
 import Relationships from "../relationships/state/create";
 import Snapshot from "../snapshot";
@@ -15,32 +23,18 @@ import {
   HasManyReference
 } from "../references";
 
-const {
-  get,
-  set,
-  copy,
-  Error: EmberError,
-  inspect,
-  isEmpty,
-  isEqual,
-  setOwner,
-  run,
-  RSVP,
-  RSVP: { Promise }
-} = Ember;
-
-const assign = Ember.assign || Ember.merge;
+const assign = emberAssign || merge;
 
 /*
   The TransitionChainMap caches the `state.enters`, `state.setups`, and final state reached
   when transitioning from one state to another, so that future transitions can replay the
   transition without needing to walk the state tree, collect these hook calls and determine
-   the state to transition into.
+  the state to transition into.
 
-   A future optimization would be to build a single chained method out of the collected enters
-   and setups. It may also be faster to do a two level cache (from: { to }) instead of caching based
-   on a key that adds the two together.
- */
+  A future optimization would be to build a single chained method out of the collected enters
+  and setups. It may also be faster to do a two level cache (from: { to }) instead of caching based
+  on a key that adds the two together.
+*/
 const TransitionChainMap = Object.create(null);
 
 const _extractPivotNameCache = Object.create(null);

@@ -1,14 +1,15 @@
+import { camelize, decamelize, dasherize } from '@ember/string';
+import { run, bind } from '@ember/runloop';
 import setupStore from 'dummy/tests/helpers/store';
 import Ember from 'ember';
 
 import testInDebug from 'dummy/tests/helpers/test-in-debug';
-import {module, test} from 'qunit';
+import { module, test } from 'qunit';
 import { isEnabled } from 'ember-data/-private';
 
 import DS from 'ember-data';
 
 var HomePlanet, league, SuperVillain, EvilMinion, YellowMinion, DoomsdayDevice, Comment, Basket, Container, env;
-var run = Ember.run;
 
 module("integration/serializer/rest - RESTSerializer", {
   beforeEach() {
@@ -103,7 +104,7 @@ test("normalizeResponse with custom modelNameFromPayloadKey", function(assert) {
   assert.expect(1);
 
   env.restSerializer.modelNameFromPayloadKey = function(root) {
-    var camelized = Ember.String.camelize(root);
+    var camelized = camelize(root);
     return Ember.String.singularize(camelized);
   };
   env.registry.register('serializer:home-planet', DS.JSONSerializer);
@@ -214,7 +215,7 @@ testInDebug("normalizeResponse warning with custom modelNameFromPayloadKey", fun
     home_planet: { id: "1", name: "Umber", superVillains: [1] }
   };
 
-  assert.expectWarning(Ember.run.bind(null, function() {
+  assert.expectWarning(bind(null, function() {
     run(function() {
       env.restSerializer.normalizeResponse(env.store, HomePlanet, jsonHash, '1', 'findRecord');
     });
@@ -256,7 +257,7 @@ testInDebug("normalizeResponse warning with custom modelNameFromPayloadKey", fun
 
   // should not warn if a model is found.
   env.restSerializer.modelNameFromPayloadKey = function(root) {
-    return Ember.String.camelize(Ember.String.singularize(root));
+    return camelize(Ember.String.singularize(root));
   };
 
   jsonHash = {
@@ -490,7 +491,7 @@ test('normalize should allow for different levels of normalization', function(as
       superVillain: 'is_super_villain'
     },
     keyForAttribute(attr) {
-      return Ember.String.decamelize(attr);
+      return decamelize(attr);
     }
   }));
 
@@ -512,7 +513,7 @@ test('normalize should allow for different levels of normalization - attributes'
       name: 'full_name'
     },
     keyForAttribute(attr) {
-      return Ember.String.decamelize(attr);
+      return decamelize(attr);
     }
   }));
 
@@ -655,7 +656,7 @@ test('serializeIntoHash uses payloadKeyFromModelName to normalize the payload ro
   var json = {};
   env.registry.register('serializer:home-planet', DS.RESTSerializer.extend({
     payloadKeyFromModelName(modelName) {
-      return Ember.String.dasherize(modelName);
+      return dasherize(modelName);
     }
   }));
 

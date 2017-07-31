@@ -2,15 +2,21 @@
   @module ember-data
 */
 
-import Ember from 'ember';
+import { typeOf, isNone } from '@ember/utils';
+
+import { makeArray } from '@ember/array';
+import { camelize } from '@ember/string';
 import { singularize } from "ember-inflector";
 import { assert, deprecate, warn } from '@ember/debug';
 import { DEBUG } from '@glimmer/env';
 
 import JSONSerializer from "../serializers/json";
-import { coerceId, modelHasAttributeOrRelationshipNamedType, normalizeModelName, isEnabled } from '../-private';
-
-const { camelize } = Ember.String;
+import {
+  coerceId,
+  modelHasAttributeOrRelationshipNamedType,
+  normalizeModelName,
+  isEnabled
+} from '../-private';
 
 /**
   Normally, applications will use the `RESTSerializer` by implementing
@@ -186,7 +192,7 @@ const RESTSerializer = JSONSerializer.extend({
     let modelClass = store.modelFor(modelName);
     let serializer = store.serializerFor(modelName);
 
-    Ember.makeArray(arrayHash).forEach((hash) => {
+    makeArray(arrayHash).forEach((hash) => {
       let { data, included } = this._normalizePolymorphicRecord(store, hash, prop, modelClass, serializer);
       documentHash.data.push(data);
       if (included) {
@@ -250,7 +256,7 @@ const RESTSerializer = JSONSerializer.extend({
 
     let meta = this.extractMeta(store, primaryModelClass, payload);
     if (meta) {
-      assert('The `meta` returned from `extractMeta` has to be an object, not "' + Ember.typeOf(meta) + '".', Ember.typeOf(meta) === 'object');
+      assert('The `meta` returned from `extractMeta` has to be an object, not "' + typeOf(meta) + '".', typeOf(meta) === 'object');
       documentHash.meta = meta;
     }
 
@@ -424,7 +430,7 @@ const RESTSerializer = JSONSerializer.extend({
       var type = store.modelFor(modelName);
       var typeSerializer = store.serializerFor(type.modelName);
 
-      Ember.makeArray(payload[prop]).forEach(hash => {
+      makeArray(payload[prop]).forEach(hash => {
         let { data, included } = typeSerializer.normalize(type, hash, prop);
         documentHash.data.push(data);
         if (included) {
@@ -773,7 +779,7 @@ const RESTSerializer = JSONSerializer.extend({
       typeKey = key;
     }
 
-    if (Ember.isNone(belongsTo)) {
+    if (isNone(belongsTo)) {
       json[typeKey] = null;
     } else {
       if (isEnabled("ds-payload-type-hooks")) {

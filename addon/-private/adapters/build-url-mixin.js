@@ -1,6 +1,7 @@
+import { camelize } from '@ember/string';
+import Mixin from '@ember/object/mixin';
+import { get } from '@ember/object';
 import Ember from 'ember';
-
-const get = Ember.get;
 
 /**
 
@@ -29,7 +30,7 @@ const get = Ember.get;
   @class BuildURLMixin
   @namespace DS
 */
-export default Ember.Mixin.create({
+export default Mixin.create({
   /**
     Builds a URL for a given type and optional ID.
 
@@ -434,7 +435,7 @@ export default Ember.Mixin.create({
     @return {String} path
   **/
   pathForType(modelName) {
-    let camelized = Ember.String.camelize(modelName);
+    let camelized = camelize(modelName);
     return Ember.String.pluralize(camelized);
   }
 });

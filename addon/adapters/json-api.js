@@ -3,6 +3,10 @@
   @module ember-data
 */
 
+import { dasherize } from '@ember/string';
+
+import $ from 'jquery';
+
 import Ember from 'ember';
 import RESTAdapter from "./rest";
 import { isEnabled } from '../-private';
@@ -169,7 +173,7 @@ const JSONAPIAdapter = RESTAdapter.extend({
           let token = heimdall.start('json.parse');
           let json;
           try {
-            json = Ember.$.parseJSON(payload);
+            json = $.parseJSON(payload);
           } catch (e) {
             json = payload;
           }
@@ -257,7 +261,7 @@ const JSONAPIAdapter = RESTAdapter.extend({
   },
 
   pathForType(modelName) {
-    let dasherized = Ember.String.dasherize(modelName);
+    let dasherized = dasherize(modelName);
     return Ember.String.pluralize(dasherized);
   },
 

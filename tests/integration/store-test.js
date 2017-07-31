@@ -1,8 +1,14 @@
+import { copy } from '@ember/object/internals';
+import { assert } from '@ember/debug';
+import RSVP, {
+  Promise as EmberPromise,
+  resolve
+} from 'rsvp';
+import { run, next } from '@ember/runloop';
 import setupStore from 'dummy/tests/helpers/store';
-import Ember from 'ember';
 
 import testInDebug from 'dummy/tests/helpers/test-in-debug';
-import {module, test} from 'qunit';
+import { module, test } from 'qunit';
 
 import DS from 'ember-data';
 import { isEnabled } from 'ember-data/-private';
@@ -20,7 +26,6 @@ Person.reopenClass({
   }
 });
 
-const { run } = Ember;
 const Car = DS.Model.extend({
   make: DS.attr('string'),
   model: DS.attr('string'),
@@ -76,8 +81,8 @@ test("destroying record during find doesn't cause error", function(assert) {
 
   let TestAdapter = DS.Adapter.extend({
     findRecord(store, type, id, snapshot) {
-      return new Ember.RSVP.Promise((resolve, reject) => {
-        Ember.run.next(() => {
+      return new EmberPromise((resolve, reject) => {
+        next(() => {
           store.unloadAll(type.modelName);
           reject();
         });
@@ -100,7 +105,7 @@ test("find calls do not resolve when the store is destroyed", function(assert) {
   let TestAdapter = DS.Adapter.extend({
     findRecord(store, type, id, snapshot) {
       store.destroy();
-      Ember.RSVP.resolve(null);
+      resolve(null);
     }
   });
 
@@ -111,7 +116,7 @@ test("find calls do not resolve when the store is destroyed", function(assert) {
   let id = 1;
 
   store.push = function() {
-    Ember.assert("The test should have destroyed the store by now", store.get("isDestroyed"));
+    assert("The test should have destroyed the store by now", store.get("isDestroyed"));
 
     throw new Error("We shouldn't be pushing data into the store when it is destroyed");
   };
@@ -197,7 +202,7 @@ test("destroying the store correctly cleans everything up", function(assert) {
   assert.equal(car.get('person'), person, "expected car's person to be the correct person");
   assert.equal(person.get('cars.firstObject'), car, " expected persons cars's firstRecord to be the correct car");
 
-  Ember.run(store, 'destroy');
+  run(store, 'destroy');
 
   assert.equal(personWillDestroy.called.length, 1, 'expected person to have recieved willDestroy once');
   assert.equal(carWillDestroy.called.length, 1, 'expected car to recieve willDestroy once');
@@ -209,11 +214,11 @@ test("destroying the store correctly cleans everything up", function(assert) {
 function ajaxResponse(value) {
   if (isEnabled('ds-improved-ajax')) {
     env.adapter._makeRequest = function() {
-      return run(Ember.RSVP, 'resolve', Ember.copy(value, true));
+      return run(RSVP, 'resolve', copy(value, true));
     };
   } else {
     env.adapter.ajax = function(url, verb, hash) {
-      return run(Ember.RSVP, 'resolve', Ember.copy(value, true));
+      return run(RSVP, 'resolve', copy(value, true));
     };
   }
 }
